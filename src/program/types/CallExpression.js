@@ -1,5 +1,6 @@
 import Node from '../Node.js';
 import spread, { isArguments } from '../../utils/spread.js';
+import { shouldPrependVm } from '../../utils/prependVm.js';
 
 export default class CallExpression extends Node {
 	initialise ( transforms ) {
@@ -48,7 +49,8 @@ export default class CallExpression extends Node {
 
 				if ( !_super && this.callee.type === 'MemberExpression' ) {
 					if ( this.callee.object.type === 'Identifier' ) {
-						context = this.callee.object.name;
+						const callee = this.callee.object;
+						context = shouldPrependVm(callee) ? `_vm.${callee.name}` : callee.name;
 					} else {
 						context = this.findScope( true ).createIdentifier( 'ref' );
 						const callExpression = this.callee.object;
